@@ -1,0 +1,12 @@
+# Directories
+.idea/
+.vs/
+idea-build/
+vs-build/
+build/
+
+# Files
+*.iml
+*.iws
+*.ipr
+*.ids

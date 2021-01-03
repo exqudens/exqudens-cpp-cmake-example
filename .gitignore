@@ -4,6 +4,8 @@
 idea-build/
 vs-build/
 build/
+downloads/
+packages/
 
 # Files
 *.iml

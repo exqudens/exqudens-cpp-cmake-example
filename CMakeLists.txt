@@ -143,7 +143,7 @@ if(
     OR NOT PNG_FOUND
     OR NOT PNGwriter_FOUND
 )
-    message(STATUS "Some test dependency not found: SKIP MAIN TARGETS")
+    message(STATUS "Some main dependency not found: SKIP MAIN TARGETS")
     return()
 endif()
 

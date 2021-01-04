@@ -18,7 +18,7 @@ endif()
 include(extension.cmake)
 
 # configuration variables
-set_if_not_defined(COMPILE_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
+set_if_not_defined(MAIN_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
 set_if_not_defined(TEST_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
 
 ######################################################################
@@ -32,8 +32,10 @@ include(ExternalProject)
 set_if_not_defined(DOWNLOADS_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/downloads")
 set_if_not_defined(PACKAGES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
 
-# (optional compile) install dependency target 'pkg-config-lite'
-ExternalProject_Add(pkg-config-lite
+# main ------------------------------
+
+# (main) install dependency target 'pkg-config-lite'
+ExternalProject_Add(install-pkg-config-lite
     DOWNLOAD_DIR      "${DOWNLOADS_PREFIX}/pkg-config-lite-0.28.1"
     DOWNLOAD_NAME     "archive.zip"
     INSTALL_DIR       "${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
@@ -46,8 +48,54 @@ ExternalProject_Add(pkg-config-lite
     INSTALL_COMMAND   ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR> <INSTALL_DIR>
 )
 
+# (main) install dependency target 'zlib'
+ExternalProject_Add(install-zlib
+    DOWNLOAD_DIR        "${DOWNLOADS_PREFIX}/zlib-1.2.11"
+    DOWNLOAD_NAME       "archive.zip"
+    INSTALL_DIR         "${PACKAGES_PREFIX}/zlib-1.2.11"
+    URL                 "https://github.com/madler/zlib/archive/v1.2.11.zip"
+    URL_MD5             "9d6a627693163bbbf3f26403a3a0b0b1"
+    EXCLUDE_FROM_ALL    TRUE
+    TEST_BEFORE_INSTALL TRUE
+    CMAKE_ARGS
+        "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
+        "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/zlib-1.2.11"
+)
+
+# (main) install dependency target 'libpng'
+ExternalProject_Add(install-libpng
+    DOWNLOAD_DIR     "${DOWNLOADS_PREFIX}/libpng-1.6.35"
+    DOWNLOAD_NAME    "archive.zip"
+    INSTALL_DIR      "${PACKAGES_PREFIX}/libpng-1.6.35"
+    URL              "https://github.com/glennrp/libpng/archive/v1.6.35.zip"
+    URL_MD5          "160403f7a8784c300bc75f5e16cecaef"
+    EXCLUDE_FROM_ALL TRUE
+    TEST_COMMAND     ""
+    LIST_SEPARATOR   <sep>
+    CMAKE_ARGS
+        "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11"
+        "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/libpng-1.6.35"
+)
+
+# (main) install dependency target 'pngwriter'
+ExternalProject_Add(install-pngwriter
+    DOWNLOAD_DIR     "${DOWNLOADS_PREFIX}/pngwriter-0.7.0"
+    DOWNLOAD_NAME    "archive.zip"
+    INSTALL_DIR      "${PACKAGES_PREFIX}/pngwriter-0.7.0"
+    URL              "https://github.com/pngwriter/pngwriter/archive/0.7.0.zip"
+    URL_MD5          "fd9fc5a6c80052c1123d2618c2187cbd"
+    EXCLUDE_FROM_ALL TRUE
+    TEST_COMMAND     ""
+    LIST_SEPARATOR   <sep>
+    CMAKE_ARGS
+        "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11<sep>${PACKAGES_PREFIX}/libpng-1.6.35"
+        "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/pngwriter-0.7.0"
+)
+
+# test ------------------------------
+
 # (test) install dependency target 'gtest-gmock'
-ExternalProject_Add(gtest-gmock
+ExternalProject_Add(install-gtest-gmock
     DOWNLOAD_DIR        "${DOWNLOADS_PREFIX}/gtest-gmock-1.10.0-custom"
     DOWNLOAD_NAME       "archive.zip"
     INSTALL_DIR         "${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
@@ -58,34 +106,12 @@ ExternalProject_Add(gtest-gmock
     TEST_BEFORE_INSTALL TRUE
 )
 
-# install dependency target 'install-all-dependencies'
-ExternalProject_Add(install-all-dependencies
-    EXCLUDE_FROM_ALL  TRUE
-    DOWNLOAD_COMMAND  ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND     ""
-    TEST_COMMAND      ""
-    INSTALL_COMMAND   ""
-    DEPENDS
-        pkg-config-lite
-        gtest-gmock
-)
-
-# install dependency target 'install-test-dependencies'
-ExternalProject_Add(install-test-dependencies
-    EXCLUDE_FROM_ALL  TRUE
-    DOWNLOAD_COMMAND  ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND     ""
-    TEST_COMMAND      ""
-    INSTALL_COMMAND   ""
-    DEPENDS
-        gtest-gmock
-)
-
 # update search path
 list(APPEND CMAKE_PREFIX_PATH
     "${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
+    "${PACKAGES_PREFIX}/zlib-1.2.11"
+    "${PACKAGES_PREFIX}/libpng-1.6.35"
+    "${PACKAGES_PREFIX}/pngwriter-0.7.0"
     "${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
 )
 
@@ -95,6 +121,31 @@ list(APPEND CMAKE_PREFIX_PATH
 
 # variables
 set(CMAKE_CXX_STANDARD 20)
+
+# dependencies ------------------------------
+
+# dependency 'PkgConfig'
+find_package(PkgConfig "0.28" ${MAIN_DEPENDENCIES_MODE})
+
+# dependency 'ZLIB'
+find_package(ZLIB "1.2.11" ${MAIN_DEPENDENCIES_MODE})
+
+# dependency 'PNG'
+find_package(PNG "1.6.35" ${MAIN_DEPENDENCIES_MODE})
+
+# dependency 'PNGwriter'
+find_package(PNGwriter "0.7.0" ${MAIN_DEPENDENCIES_MODE})
+
+# complete configuration if dependency not found
+if(
+    NOT PkgConfig_FOUND
+    OR NOT ZLIB_FOUND
+    OR NOT PNG_FOUND
+    OR NOT PNGwriter_FOUND
+)
+    message(STATUS "Some test dependency not found: SKIP MAIN TARGETS")
+    return()
+endif()
 
 # libraries ------------------------------
 
@@ -127,9 +178,6 @@ target_link_libraries(ExqudensExampleCPP
 ######################################################################
 
 # dependencies ------------------------------
-
-# dependency 'PkgConfig'
-#find_package(PkgConfig "0.28" ${TEST_DEPENDENCIES_MODE})
 
 # dependency 'GTest'
 find_package(GTest "1.10.0" ${TEST_DEPENDENCIES_MODE})

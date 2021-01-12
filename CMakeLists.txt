@@ -143,7 +143,7 @@ if(
     OR NOT PNG_FOUND
     OR NOT PNGwriter_FOUND
 )
-    message(STATUS "Some main dependency not found: SKIP MAIN TARGETS")
+    message(STATUS "Some 'main' dependency not found: COMPLETE CONFIGURATION !!!")
     return()
 endif()
 
@@ -184,7 +184,7 @@ find_package(GTest "1.10.0" ${TEST_DEPENDENCIES_MODE})
 
 # complete configuration if dependency not found
 if(NOT GTest_FOUND)
-    message(STATUS "Some test dependency not found: SKIP TEST TARGETS")
+    message(STATUS "Some 'test' dependency not found: COMPLETE CONFIGURATION !!!")
     return()
 endif()
 

@@ -155,8 +155,8 @@ target_include_directories(ExqudensExample
     PRIVATE src/main/cpp
 )
 target_sources(ExqudensExample
-    PRIVATE src/main/cpp/exqudens/example/StringUtils.hpp
-            src/main/cpp/exqudens/example/StringUtils.cpp
+    PRIVATE src/main/cpp/exqudens/util/StringUtils.hpp
+            src/main/cpp/exqudens/util/StringUtils.cpp
 )
 
 # executables ------------------------------
@@ -197,9 +197,9 @@ target_include_directories(ExqudensExampleTest
             src/main/cpp
 )
 target_sources(ExqudensExampleTest
-    PRIVATE src/test/cpp/exqudens/example/test/Runner.hpp
-            src/test/cpp/exqudens/example/test/Runner.cpp
-            src/test/cpp/exqudens/example/test/StringUtilsTestSuite.hpp
+    PRIVATE src/test/cpp/exqudens/test/Runner.hpp
+            src/test/cpp/exqudens/test/Runner.cpp
+            src/test/cpp/exqudens/util/StringUtilsTestSuite.hpp
 )
 target_link_libraries(ExqudensExampleTest
     PRIVATE GTest::GTest

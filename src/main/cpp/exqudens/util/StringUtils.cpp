@@ -1,6 +1,6 @@
-#include "exqudens/example/StringUtils.hpp"
+#include "exqudens/util/StringUtils.hpp"
 
-namespace exqudens::example {
+namespace exqudens::util {
 
   const String StringUtils::WHITE_SPACES = " \n\r\t\f\v";
 

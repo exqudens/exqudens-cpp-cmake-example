@@ -1,9 +1,9 @@
-#ifndef EXQUDENS_EXAMPLE_STRING_UTILS_HPP
-#define EXQUDENS_EXAMPLE_STRING_UTILS_HPP
+#ifndef EXQUDENS_UTIL_STRING_UTILS_HPP
+#define EXQUDENS_UTIL_STRING_UTILS_HPP
 
 #include <string>
 
-namespace exqudens::example {
+namespace exqudens::util {
 
   using String = std::string;
 
@@ -46,4 +46,4 @@ namespace exqudens::example {
 
 }
 
-#endif //EXQUDENS_EXAMPLE_STRING_UTILS_HPP
+#endif // EXQUDENS_UTIL_STRING_UTILS_HPP

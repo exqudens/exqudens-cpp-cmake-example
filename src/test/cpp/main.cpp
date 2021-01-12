@@ -1,5 +1,5 @@
-#include "exqudens/example/test/Runner.hpp"
+#include "exqudens/test/Runner.hpp"
 
 int main(int argc, char** argv) {
-  return exqudens::example::test::Runner::run(argc, argv);
+  return exqudens::test::Runner::run(argc, argv);
 }

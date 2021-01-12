@@ -1,11 +1,11 @@
-#include "exqudens/example/StringUtils.hpp"
+#include "exqudens/util/StringUtils.hpp"
 
 #include <string>
 #include <iostream>
 
 int main(int argc, char** argv) {
   using String      = std::string;
-  using StringUtils = exqudens::example::StringUtils;
+  using StringUtils = exqudens::util::StringUtils;
 
   String string = "\n aaa bbb\n   ";
   String expected = "aaa bbb";

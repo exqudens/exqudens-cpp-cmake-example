@@ -1,16 +1,16 @@
-#ifndef EXQUDENS_EXAMPLE_STRING_UTILS_TEST_SUITE_HPP
-#define EXQUDENS_EXAMPLE_STRING_UTILS_TEST_SUITE_HPP
+#ifndef EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP
+#define EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP
 
 #include <string>
 
 #include "gtest/gtest.h"
 
-#include "exqudens/example/StringUtils.hpp"
+#include "exqudens/util/StringUtils.hpp"
 
 namespace exqudens::example::test {
 
   using String      = std::string;
-  using StringUtils = exqudens::example::StringUtils;
+  using StringUtils = exqudens::util::StringUtils;
 
   GTEST_TEST(StringUtilsTestSuite, test_1) {
     String string = "\n aaa bbb\n   ";
@@ -22,7 +22,7 @@ namespace exqudens::example::test {
 
     std::cout << "result: '" << actual << "'" << std::endl;
 
-    ASSERT_EQ(expected, actual);
+    ASSERT_EQ(expected, actual) << "Info: " << "my_test_info" << 1;
   }
 
   GTEST_TEST(StringUtilsTestSuite, test_2) {
@@ -35,9 +35,9 @@ namespace exqudens::example::test {
 
     std::cout << "result: '" << actual << "'" << std::endl;
 
-    ASSERT_NE(expected, actual);
+    ASSERT_NE(expected, actual) << "Info: " << "my_test_info" << 2;
   }
 
 }
 
-#endif // EXQUDENS_EXAMPLE_STRING_UTILS_TEST_SUITE_HPP
+#endif // EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP

@@ -116,6 +116,21 @@ list(APPEND CMAKE_PREFIX_PATH
 )
 
 ######################################################################
+# runtime-binaries ###################################################
+######################################################################
+
+# variables
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+find_file(LIB_STDCPP NAMES "libstdc++-6.dll")
+find_file(LIB_GCC    NAMES "libgcc_s_dw2-1.dll")
+
+# target
+add_custom_target(copy-runtime-binaries
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_STDCPP} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GCC}    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+######################################################################
 # main ###############################################################
 ######################################################################
 
@@ -172,6 +187,7 @@ target_sources(ExqudensExampleCPP
 target_link_libraries(ExqudensExampleCPP
     PRIVATE ExqudensExample
 )
+add_dependencies(ExqudensExampleCPP copy-runtime-binaries)
 
 ######################################################################
 # test ###############################################################
@@ -220,11 +236,31 @@ target_sources(TestExqudensExampleCPP
 target_link_libraries(TestExqudensExampleCPP
     PRIVATE ExqudensExampleTest
 )
+add_dependencies(TestExqudensExampleCPP copy-runtime-binaries)
+
+# tests ------------------------------
 
 # enable module 'CTest'
 enable_testing()
 
 # add tests
-add_test("StringUtilsTestSuite.test_1" TestExqudensExampleCPP "--gtest_filter=StringUtilsTestSuite.test_1")
-add_test("StringUtilsTestSuite.test_2" TestExqudensExampleCPP "--gtest_filter=StringUtilsTestSuite.test_2")
-add_test("main" ExqudensExampleCPP)
+add_test(
+    NAME StringUtilsTestSuite.test_1
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.test_1
+)
+set_tests_properties(StringUtilsTestSuite.test_1 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_test(
+    NAME StringUtilsTestSuite.test_2
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.test_2
+)
+set_tests_properties(StringUtilsTestSuite.test_2 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_test(
+    NAME main
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ExqudensExampleCPP --parent-path src/main
+)
+set_tests_properties(main PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

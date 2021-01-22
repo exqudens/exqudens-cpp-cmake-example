@@ -58,6 +58,7 @@ ExternalProject_Add(install-zlib
     EXCLUDE_FROM_ALL    TRUE
     TEST_BEFORE_INSTALL TRUE
     CMAKE_ARGS
+        "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/zlib-1.2.11"
 )
@@ -73,6 +74,7 @@ ExternalProject_Add(install-libpng
     TEST_COMMAND     ""
     LIST_SEPARATOR   <sep>
     CMAKE_ARGS
+        "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/libpng-1.6.35"
 )
@@ -88,6 +90,7 @@ ExternalProject_Add(install-pngwriter
     TEST_COMMAND     ""
     LIST_SEPARATOR   <sep>
     CMAKE_ARGS
+        "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11<sep>${PACKAGES_PREFIX}/libpng-1.6.35"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/pngwriter-0.7.0"
 )
@@ -102,8 +105,10 @@ ExternalProject_Add(install-gtest-gmock
     URL                 "https://github.com/google/googletest/archive/389cb68b87193358358ae87cc56d257fd0d80189.zip"
     URL_MD5             "07166e65eed56641d582d139cd750be0"
     EXCLUDE_FROM_ALL    TRUE
-    CMAKE_ARGS          "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
     TEST_BEFORE_INSTALL TRUE
+    CMAKE_ARGS
+        "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+        "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
 )
 
 # update search path

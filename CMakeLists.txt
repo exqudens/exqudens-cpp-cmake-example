@@ -59,6 +59,7 @@ ExternalProject_Add(install-zlib
     TEST_BEFORE_INSTALL TRUE
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/zlib-1.2.11"
 )
@@ -75,6 +76,7 @@ ExternalProject_Add(install-libpng
     LIST_SEPARATOR   <sep>
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/libpng-1.6.35"
 )
@@ -91,6 +93,7 @@ ExternalProject_Add(install-pngwriter
     LIST_SEPARATOR   <sep>
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11<sep>${PACKAGES_PREFIX}/libpng-1.6.35"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/pngwriter-0.7.0"
 )
@@ -108,6 +111,7 @@ ExternalProject_Add(install-gtest-gmock
     TEST_BEFORE_INSTALL TRUE
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
 )
 
@@ -205,7 +209,7 @@ add_dependencies(ExqudensExampleCPP copy-runtime-binaries)
 # dependencies ------------------------------
 
 # dependency 'GTest'
-find_package(GTest "1.10.0" ${TEST_DEPENDENCIES_MODE})
+find_package(GTest "1.10.0" ${TEST_DEPENDENCIES_MODE} CONFIG)
 
 # complete configuration if dependency not found
 if(NOT GTest_FOUND)
@@ -228,8 +232,8 @@ target_sources(ExqudensExampleTest
             src/test/cpp/exqudens/util/StringUtilsTestSuite.hpp
 )
 target_link_libraries(ExqudensExampleTest
-    PRIVATE GTest::GTest
-            GTest::Main
+    PRIVATE GTest::gtest
+            GTest::gtest_main
             ExqudensExample
 )
 

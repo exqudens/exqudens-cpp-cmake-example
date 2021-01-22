@@ -164,6 +164,10 @@ if(
     OR NOT PNGwriter_FOUND
 )
     message(STATUS "Some 'main' dependency not found: COMPLETE CONFIGURATION !!!")
+    message(STATUS "PkgConfig_FOUND: ${PkgConfig_FOUND}")
+    message(STATUS "ZLIB_FOUND: ${ZLIB_FOUND}")
+    message(STATUS "PNG_FOUND: ${PNG_FOUND}")
+    message(STATUS "PNGwriter_FOUND: ${PNGwriter_FOUND}")
     return()
 endif()
 
@@ -206,6 +210,7 @@ find_package(GTest "1.10.0" ${TEST_DEPENDENCIES_MODE})
 # complete configuration if dependency not found
 if(NOT GTest_FOUND)
     message(STATUS "Some 'test' dependency not found: COMPLETE CONFIGURATION !!!")
+    message(STATUS "GTest_FOUND: ${GTest_FOUND}")
     return()
 endif()
 

@@ -20,6 +20,12 @@ include(extension.cmake)
 # configuration variables
 set_if_not_defined(MAIN_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
 set_if_not_defined(TEST_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
+set_if_not_defined(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+set_if_not_defined(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set_if_not_defined(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set_if_not_defined(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+unset(CMAKE_SHARED_LIBRARY_PREFIX)
 
 ######################################################################
 # install dependency targets #########################################
@@ -60,6 +66,7 @@ ExternalProject_Add(install-zlib
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=${CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/zlib-1.2.11"
 )
@@ -77,6 +84,7 @@ ExternalProject_Add(install-libpng
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=${CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS}"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/libpng-1.6.35"
 )
@@ -94,6 +102,7 @@ ExternalProject_Add(install-pngwriter
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=${CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS}"
         "-DBUILD_STATIC_LIBS=ON"
         "-DBUILD_SHARED_LIBS=ON"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11<sep>${PACKAGES_PREFIX}/libpng-1.6.35"
@@ -114,6 +123,7 @@ ExternalProject_Add(install-gtest-gmock
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=${CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS}"
         "-DBUILD_STATIC_LIBS=ON"
         "-DBUILD_SHARED_LIBS=ON"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
@@ -133,11 +143,10 @@ list(APPEND CMAKE_PREFIX_PATH
 ######################################################################
 
 # variables
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 find_file(LIB_STDCPP     NAMES "libstdc++-6.dll")
 find_file(LIB_GCC        NAMES "libgcc_s_dw2-1.dll")
-find_file(LIB_GTEST      NAMES "libgtest.dll"      PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
-find_file(LIB_GTEST_MAIN NAMES "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
+find_file(LIB_GTEST      NAMES "gtest.dll" "libgtest.dll"           PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
+find_file(LIB_GTEST_MAIN NAMES "gtest_main.dll" "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
 
 # target
 add_custom_target(copy-runtime-binaries
@@ -211,8 +220,6 @@ target_sources(ExqudensExampleCPP
 )
 target_link_libraries(ExqudensExampleCPP
     PRIVATE ExqudensExampleShared
-            ExqudensExampleStatic
-
 )
 add_dependencies(ExqudensExampleCPP copy-runtime-binaries)
 
@@ -255,14 +262,12 @@ target_link_libraries(ExqudensExampleTest
 add_library(ExqudensExampleTestShared SHARED $<TARGET_OBJECTS:ExqudensExampleTest>)
 target_link_libraries(ExqudensExampleTestShared
     PRIVATE ExqudensExampleShared
-            ExqudensExampleStatic
             GTest::gtest
             GTest::gtest_main
 )
 add_library(ExqudensExampleTestStatic STATIC $<TARGET_OBJECTS:ExqudensExampleTest>)
 target_link_libraries(ExqudensExampleTestStatic
-    PRIVATE ExqudensExampleShared
-            ExqudensExampleStatic
+    PRIVATE ExqudensExampleStatic
             GTest::gtest
             GTest::gtest_main
 )
@@ -279,7 +284,6 @@ target_sources(TestExqudensExampleCPP
 )
 target_link_libraries(TestExqudensExampleCPP
     PRIVATE ExqudensExampleTestShared
-            ExqudensExampleTestStatic
 )
 add_dependencies(TestExqudensExampleCPP copy-runtime-binaries)
 

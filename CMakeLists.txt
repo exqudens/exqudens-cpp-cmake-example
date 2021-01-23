@@ -94,6 +94,8 @@ ExternalProject_Add(install-pngwriter
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DBUILD_STATIC_LIBS=ON"
+        "-DBUILD_SHARED_LIBS=ON"
         "-DCMAKE_PREFIX_PATH=${PACKAGES_PREFIX}/pkg-config-lite-0.28.1<sep>${PACKAGES_PREFIX}/zlib-1.2.11<sep>${PACKAGES_PREFIX}/libpng-1.6.35"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/pngwriter-0.7.0"
 )
@@ -112,6 +114,8 @@ ExternalProject_Add(install-gtest-gmock
     CMAKE_ARGS
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DBUILD_STATIC_LIBS=ON"
+        "-DBUILD_SHARED_LIBS=ON"
         "-DCMAKE_INSTALL_PREFIX=${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom"
 )
 
@@ -130,13 +134,17 @@ list(APPEND CMAKE_PREFIX_PATH
 
 # variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-find_file(LIB_STDCPP NAMES "libstdc++-6.dll")
-find_file(LIB_GCC    NAMES "libgcc_s_dw2-1.dll")
+find_file(LIB_STDCPP     NAMES "libstdc++-6.dll")
+find_file(LIB_GCC        NAMES "libgcc_s_dw2-1.dll")
+find_file(LIB_GTEST      NAMES "libgtest.dll"      PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
+find_file(LIB_GTEST_MAIN NAMES "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
 
 # target
 add_custom_target(copy-runtime-binaries
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_STDCPP} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GCC}    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_STDCPP}     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GCC}        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GTEST}      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GTEST_MAIN} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 ######################################################################
@@ -177,8 +185,8 @@ endif()
 
 # libraries ------------------------------
 
-# declare library
-add_library(ExqudensExample SHARED)
+# declare object library
+add_library(ExqudensExample OBJECT)
 target_include_directories(ExqudensExample
     PRIVATE src/main/cpp
 )
@@ -186,6 +194,10 @@ target_sources(ExqudensExample
     PRIVATE src/main/cpp/exqudens/util/StringUtils.hpp
             src/main/cpp/exqudens/util/StringUtils.cpp
 )
+
+# declare static and shared library from the same object files
+add_library(ExqudensExampleShared SHARED $<TARGET_OBJECTS:ExqudensExample>)
+add_library(ExqudensExampleStatic STATIC $<TARGET_OBJECTS:ExqudensExample>)
 
 # executables ------------------------------
 
@@ -198,7 +210,8 @@ target_sources(ExqudensExampleCPP
     PRIVATE src/main/cpp/main.cpp
 )
 target_link_libraries(ExqudensExampleCPP
-    PRIVATE ExqudensExample
+    PRIVATE ExqudensExampleStatic
+            ExqudensExampleShared
 )
 add_dependencies(ExqudensExampleCPP copy-runtime-binaries)
 
@@ -221,7 +234,7 @@ endif()
 # libraries ------------------------------
 
 # declare test library
-add_library(ExqudensExampleTest SHARED)
+add_library(ExqudensExampleTest OBJECT)
 target_include_directories(ExqudensExampleTest
     PRIVATE src/test/cpp
             src/main/cpp
@@ -237,6 +250,20 @@ target_link_libraries(ExqudensExampleTest
             ExqudensExample
 )
 
+# declare test static and shared library from the same object files
+add_library(ExqudensExampleTestShared SHARED $<TARGET_OBJECTS:ExqudensExampleTest>)
+target_link_libraries(ExqudensExampleTestShared
+    PRIVATE ExqudensExample
+            GTest::gtest
+            GTest::gtest_main
+)
+add_library(ExqudensExampleTestStatic STATIC $<TARGET_OBJECTS:ExqudensExampleTest>)
+target_link_libraries(ExqudensExampleTestStatic
+    PRIVATE ExqudensExample
+            GTest::gtest
+            GTest::gtest_main
+)
+
 # executables ------------------------------
 
 # declare test executable
@@ -248,7 +275,10 @@ target_sources(TestExqudensExampleCPP
     PRIVATE src/test/cpp/main.cpp
 )
 target_link_libraries(TestExqudensExampleCPP
-    PRIVATE ExqudensExampleTest
+    PRIVATE ExqudensExample
+            ExqudensExampleTest
+            GTest::gtest
+            GTest::gtest_main
 )
 add_dependencies(TestExqudensExampleCPP copy-runtime-binaries)
 

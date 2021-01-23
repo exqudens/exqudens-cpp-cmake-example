@@ -303,8 +303,15 @@ add_test(
 set_tests_properties(StringUtilsTestSuite.test_2 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_test(
-    NAME main
+    NAME main.parentPath
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ExqudensExampleCPP --parent-path src/main
+    COMMAND ExqudensExampleCPP --parent-path
 )
-set_tests_properties(main PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set_tests_properties(main.parentPath PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_test(
+    NAME main.trim
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ExqudensExampleCPP --trim
+)
+set_tests_properties(main.trim PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

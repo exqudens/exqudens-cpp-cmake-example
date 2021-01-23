@@ -9,8 +9,31 @@ using String      = std::string;
 using Path        = std::filesystem::path;
 using StringUtils = exqudens::util::StringUtils;
 
-void trim() {
+void parentPath() {
+  if(const char* env_p = std::getenv("PATH")) {
+    std::cout << "Your PATH is: '" << env_p << "'" << std::endl;
+  }
 
+  String string = "src/main";
+  String expected = "main";
+
+  std::cout << "processing path: '" << string << "'" << std::endl;
+
+  String actual = Path(string.c_str()).parent_path().string();
+
+  std::cout << "result: '" << actual << "'" << std::endl;
+
+  if (expected != actual) {
+    String message = "expected: '";
+    message += expected;
+    message += "' actual: '";
+    message += actual;
+    message += "'";
+    std::cerr << message << std::endl;
+  }
+}
+
+void trim() {
   String string = "\n aaa bbb\n   ";
   String expected = "aaa bbb";
 
@@ -30,23 +53,15 @@ void trim() {
   }
 }
 
-void parentPath(String string) {
-  if(const char* env_p = std::getenv("PATH")) {
-    std::cout << "Your PATH is: '" << env_p << "'" << std::endl;
-  }
-  String s = Path(string.c_str()).parent_path().string();
-  std::cout << "Parent PATH is: '" << s << "'" << std::endl;
-}
-
 int main(int argc, char** argv) {
   if (argc > 1) {
 
     String command = String(argv[1]);
 
-    if ("--trim" == command) {
+    if ("--parent-path" == command) {
+      parentPath();
+    } else if ("--trim" == command) {
       trim();
-    } else if ("--parent-path" == command) {
-      parentPath(String(argv[2]));
     }
 
   }

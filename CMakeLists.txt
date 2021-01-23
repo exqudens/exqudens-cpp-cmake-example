@@ -210,8 +210,9 @@ target_sources(ExqudensExampleCPP
     PRIVATE src/main/cpp/main.cpp
 )
 target_link_libraries(ExqudensExampleCPP
-    PRIVATE ExqudensExampleStatic
-            ExqudensExampleShared
+    PRIVATE ExqudensExampleShared
+            ExqudensExampleStatic
+
 )
 add_dependencies(ExqudensExampleCPP copy-runtime-binaries)
 
@@ -253,13 +254,15 @@ target_link_libraries(ExqudensExampleTest
 # declare test static and shared library from the same object files
 add_library(ExqudensExampleTestShared SHARED $<TARGET_OBJECTS:ExqudensExampleTest>)
 target_link_libraries(ExqudensExampleTestShared
-    PRIVATE ExqudensExample
+    PRIVATE ExqudensExampleShared
+            ExqudensExampleStatic
             GTest::gtest
             GTest::gtest_main
 )
 add_library(ExqudensExampleTestStatic STATIC $<TARGET_OBJECTS:ExqudensExampleTest>)
 target_link_libraries(ExqudensExampleTestStatic
-    PRIVATE ExqudensExample
+    PRIVATE ExqudensExampleShared
+            ExqudensExampleStatic
             GTest::gtest
             GTest::gtest_main
 )
@@ -275,10 +278,8 @@ target_sources(TestExqudensExampleCPP
     PRIVATE src/test/cpp/main.cpp
 )
 target_link_libraries(TestExqudensExampleCPP
-    PRIVATE ExqudensExample
-            ExqudensExampleTest
-            GTest::gtest
-            GTest::gtest_main
+    PRIVATE ExqudensExampleTestShared
+            ExqudensExampleTestStatic
 )
 add_dependencies(TestExqudensExampleCPP copy-runtime-binaries)
 

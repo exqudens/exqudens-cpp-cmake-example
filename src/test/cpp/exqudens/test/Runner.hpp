@@ -1,5 +1,4 @@
-#ifndef EXQUDENS_TEST_RUNNER_HPP
-#define EXQUDENS_TEST_RUNNER_HPP
+#pragma once
 
 namespace exqudens::test {
 
@@ -16,5 +15,3 @@ namespace exqudens::test {
   };
 
 }
-
-#endif // EXQUDENS_TEST_RUNNER_HPP

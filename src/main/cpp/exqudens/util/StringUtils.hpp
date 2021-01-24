@@ -1,5 +1,4 @@
-#ifndef EXQUDENS_UTIL_STRING_UTILS_HPP
-#define EXQUDENS_UTIL_STRING_UTILS_HPP
+#pragma once
 
 #include <string>
 
@@ -45,5 +44,3 @@ namespace exqudens::util {
   };
 
 }
-
-#endif // EXQUDENS_UTIL_STRING_UTILS_HPP

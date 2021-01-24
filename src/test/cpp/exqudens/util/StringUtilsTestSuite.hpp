@@ -1,10 +1,7 @@
-#ifndef EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP
-#define EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP
+#pragma once
 
 #include <string>
-
 #include "gtest/gtest.h"
-
 #include "exqudens/util/StringUtils.hpp"
 
 namespace exqudens::example::test {
@@ -39,5 +36,3 @@ namespace exqudens::example::test {
   }
 
 }
-
-#endif // EXQUDENS_UTIL_STRING_UTILS_TEST_SUITE_HPP

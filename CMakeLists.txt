@@ -18,6 +18,8 @@ endif()
 include(extension.cmake)
 
 # configuration variables
+set_if_not_defined(DOWNLOADS_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/downloads")
+set_if_not_defined(PACKAGES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
 set_if_not_defined(MAIN_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
 set_if_not_defined(TEST_DEPENDENCIES_MODE "QUIET") # 'QUIET' or 'REQUIRED' or 'EXACT'
 set_if_not_defined(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -33,10 +35,6 @@ unset(CMAKE_SHARED_LIBRARY_PREFIX)
 
 # extensions
 include(ExternalProject)
-
-# variables
-set_if_not_defined(DOWNLOADS_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/downloads")
-set_if_not_defined(PACKAGES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
 
 # main ------------------------------
 
@@ -143,17 +141,37 @@ list(APPEND CMAKE_PREFIX_PATH
 ######################################################################
 
 # variables
-find_file(LIB_STDCPP     NAMES "libstdc++-6.dll")
-find_file(LIB_GCC        NAMES "libgcc_s_dw2-1.dll")
-find_file(LIB_GTEST      NAMES "gtest.dll" "libgtest.dll"           PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
-find_file(LIB_GTEST_MAIN NAMES "gtest_main.dll" "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin)
+get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+find_file(LIB_STDCPP     NAMES "libstdc++-6.dll"                    PATHS ${CXX_COMPILER_DIR}                              NO_DEFAULT_PATH)
+find_file(LIB_GCC        NAMES "libgcc_s_dw2-1.dll"                 PATHS ${CXX_COMPILER_DIR}                              NO_DEFAULT_PATH)
+find_file(LIB_GTEST      NAMES "gtest.dll" "libgtest.dll"           PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin NO_DEFAULT_PATH)
+find_file(LIB_GTEST_MAIN NAMES "gtest_main.dll" "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin NO_DEFAULT_PATH)
+
+set(COPY_LIB_STDCPP_COMMAND "-E" "echo" ${LIB_STDCPP})
+set(COPY_LIB_GCC_COMMAND "-E" "echo" ${LIB_GCC})
+set(COPY_LIB_GTEST_COMMAND "-E" "echo" ${LIB_GTEST})
+set(COPY_LIB_GTEST_MAIN_COMMAND "-E" "echo" ${LIB_GTEST_MAIN})
+
+if(EXISTS ${LIB_STDCPP})
+    set(COPY_LIB_STDCPP_COMMAND "-E" "copy" "${LIB_STDCPP}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_GCC})
+    set(COPY_LIB_GCC_COMMAND "-E" "copy" "${LIB_GCC}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_GTEST})
+    set(COPY_LIB_GTEST_COMMAND "-E" "copy" "${LIB_GTEST}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_GTEST_MAIN})
+    set(COPY_LIB_GTEST_MAIN_COMMAND "-E" "copy" "${LIB_GTEST_MAIN}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
 
 # target
 add_custom_target(copy-runtime-binaries
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_STDCPP}     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GCC}        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GTEST}      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_GTEST_MAIN} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_STDCPP_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GCC_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GTEST_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GTEST_MAIN_COMMAND}
 )
 
 ######################################################################

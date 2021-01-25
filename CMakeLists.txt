@@ -26,6 +26,7 @@ set_if_not_defined(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set_if_not_defined(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set_if_not_defined(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set_if_not_defined(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set_if_not_defined(RESOURCES_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 unset(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -144,12 +145,18 @@ list(APPEND CMAKE_PREFIX_PATH
 get_filename_component(CXX_COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 find_file(LIB_STDCPP     NAMES "libstdc++-6.dll"                    PATHS ${CXX_COMPILER_DIR}                              NO_DEFAULT_PATH)
 find_file(LIB_GCC        NAMES "libgcc_s_dw2-1.dll"                 PATHS ${CXX_COMPILER_DIR}                              NO_DEFAULT_PATH)
+find_file(LIB_ZLIB       NAMES "zlib.dll" "libzlib.dll"             PATHS ${PACKAGES_PREFIX}/zlib-1.2.11/bin               NO_DEFAULT_PATH)
+find_file(LIB_PNG        NAMES "png16.dll" "libpng16.dll"           PATHS ${PACKAGES_PREFIX}/libpng-1.6.35/bin             NO_DEFAULT_PATH)
+find_file(LIB_PNG_WRITER NAMES "PNGWriter.dll" "libPNGWriter.dll"   PATHS ${PACKAGES_PREFIX}/pngwriter-0.7.0/bin           NO_DEFAULT_PATH)
 find_file(LIB_GTEST      NAMES "gtest.dll" "libgtest.dll"           PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin NO_DEFAULT_PATH)
 find_file(LIB_GTEST_MAIN NAMES "gtest_main.dll" "libgtest_main.dll" PATHS ${PACKAGES_PREFIX}/gtest-gmock-1.10.0-custom/bin NO_DEFAULT_PATH)
 
-set(COPY_LIB_STDCPP_COMMAND "-E" "echo" ${LIB_STDCPP})
-set(COPY_LIB_GCC_COMMAND "-E" "echo" ${LIB_GCC})
-set(COPY_LIB_GTEST_COMMAND "-E" "echo" ${LIB_GTEST})
+set(COPY_LIB_STDCPP_COMMAND     "-E" "echo" ${LIB_STDCPP})
+set(COPY_LIB_GCC_COMMAND        "-E" "echo" ${LIB_GCC})
+set(COPY_LIB_ZLIB_COMMAND       "-E" "echo" ${LIB_ZLIB})
+set(COPY_LIB_PNG_COMMAND        "-E" "echo" ${LIB_PNG})
+set(COPY_LIB_PNG_WRITER_COMMAND "-E" "echo" ${LIB_PNG_WRITER})
+set(COPY_LIB_GTEST_COMMAND      "-E" "echo" ${LIB_GTEST})
 set(COPY_LIB_GTEST_MAIN_COMMAND "-E" "echo" ${LIB_GTEST_MAIN})
 
 if(EXISTS ${LIB_STDCPP})
@@ -157,6 +164,15 @@ if(EXISTS ${LIB_STDCPP})
 endif()
 if(EXISTS ${LIB_GCC})
     set(COPY_LIB_GCC_COMMAND "-E" "copy" "${LIB_GCC}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_ZLIB})
+    set(COPY_LIB_ZLIB_COMMAND "-E" "copy" "${LIB_ZLIB}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_PNG})
+    set(COPY_LIB_PNG_COMMAND "-E" "copy" "${LIB_PNG}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+if(EXISTS ${LIB_PNG_WRITER})
+    set(COPY_LIB_PNG_WRITER_COMMAND "-E" "copy" "${LIB_PNG_WRITER}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 if(EXISTS ${LIB_GTEST})
     set(COPY_LIB_GTEST_COMMAND "-E" "copy" "${LIB_GTEST}" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -168,8 +184,12 @@ endif()
 # target
 add_custom_target(copy-runtime-binaries
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/src/test/resources ${RESOURCES_OUTPUT_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} ${COPY_LIB_STDCPP_COMMAND}
     COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GCC_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_ZLIB_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_PNG_COMMAND}
+    COMMAND ${CMAKE_COMMAND} ${COPY_LIB_PNG_WRITER_COMMAND}
     COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GTEST_COMMAND}
     COMMAND ${CMAKE_COMMAND} ${COPY_LIB_GTEST_MAIN_COMMAND}
 )
@@ -220,11 +240,22 @@ target_include_directories(ExqudensExample
 target_sources(ExqudensExample
     PRIVATE src/main/cpp/exqudens/util/StringUtils.hpp
             src/main/cpp/exqudens/util/StringUtils.cpp
+            src/main/cpp/exqudens/util/ImageUtils.hpp
+            src/main/cpp/exqudens/util/ImageUtils.cpp
+)
+target_link_libraries(ExqudensExample
+    PRIVATE PNGwriter::PNGwriter
 )
 
 # declare static and shared library from the same object files
 add_library(ExqudensExampleShared SHARED $<TARGET_OBJECTS:ExqudensExample>)
+target_link_libraries(ExqudensExampleShared
+    PRIVATE PNGwriter::PNGwriter
+)
 add_library(ExqudensExampleStatic STATIC $<TARGET_OBJECTS:ExqudensExample>)
+target_link_libraries(ExqudensExampleStatic
+    PRIVATE PNGwriter::PNGwriter
+)
 
 # executables ------------------------------
 
@@ -268,7 +299,10 @@ target_include_directories(ExqudensExampleTest
 target_sources(ExqudensExampleTest
     PRIVATE src/test/cpp/exqudens/test/Runner.hpp
             src/test/cpp/exqudens/test/Runner.cpp
+    src/test/cpp/exqudens/test/Config.hpp
+    src/test/cpp/exqudens/test/Config.cpp
             src/test/cpp/exqudens/util/StringUtilsTestSuite.hpp
+            src/test/cpp/exqudens/util/ImageUtilsTestSuite.hpp
 )
 target_link_libraries(ExqudensExampleTest
     PRIVATE GTest::gtest
@@ -324,6 +358,13 @@ add_test(
     COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.*
 )
 set_tests_properties(StringUtilsTestSuite.all PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_test(
+    NAME ImageUtilsTestSuite.all
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND TestExqudensExampleCPP --gtest_filter=ImageUtilsTestSuite.*
+)
+set_tests_properties(ImageUtilsTestSuite.all PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_test(
     NAME main.parentPath

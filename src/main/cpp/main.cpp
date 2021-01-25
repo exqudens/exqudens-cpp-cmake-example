@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <stdexcept>
 
 using String      = std::string;
 using Path        = std::filesystem::path;
@@ -15,7 +16,7 @@ void parentPath() {
   }
 
   String string = "src/main";
-  String expected = "main";
+  String expected = "src";
 
   std::cout << "processing path: '" << string << "'" << std::endl;
 
@@ -29,7 +30,7 @@ void parentPath() {
     message += "' actual: '";
     message += actual;
     message += "'";
-    std::cerr << message << std::endl;
+    throw std::runtime_error(message);
   }
 }
 
@@ -49,19 +50,30 @@ void trim() {
     message += "' actual: '";
     message += actual;
     message += "'";
-    std::cerr << message << std::endl;
+    throw std::runtime_error(message);
   }
+}
+
+void readPng(String executableFilePath) {
+  std::filesystem::path filePath = std::filesystem::path(executableFilePath.c_str())
+      .append("..").append("..")
+      .append("resources")
+      .append("census-transform-1.png");
+  std::string filePathString = filePath.string();
 }
 
 int main(int argc, char** argv) {
   if (argc > 1) {
 
+    String executableFilePath = String(argv[0]);
     String command = String(argv[1]);
 
     if ("--parent-path" == command) {
       parentPath();
     } else if ("--trim" == command) {
       trim();
+    } else if ("--read-png" == command) {
+      readPng(executableFilePath);
     }
 
   }

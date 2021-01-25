@@ -9,10 +9,12 @@
 
 namespace exqudens::example::test {
 
-  using String       = std::string;
-  using Path         = std::filesystem::path;
-  using RunnerConfig = exqudens::test::Config;
-  using ImageUtils   = exqudens::util::ImageUtils;
+  using String     = std::string;
+  using Path       = std::filesystem::path;
+  using Config     = exqudens::test::Config;
+  using ImageUtils = exqudens::util::ImageUtils;
+  using Image      = exqudens::util::Image;
+  using Pixel      = exqudens::util::Pixel;
 
   class ImageUtilsTestSuite : public testing::Test {
 
@@ -24,6 +26,19 @@ namespace exqudens::example::test {
 
       static void TearDownTestSuite() {
         std::cout << "ImageUtilsTestSuite::TearDownTestSuite()" << std::endl;
+      }
+
+      static String toString(Pixel pixel) {
+        String string = String("[")
+            .append(std::to_string(pixel[0]))
+            .append(", ")
+            .append(std::to_string(pixel[1]))
+            .append(", ")
+            .append(std::to_string(pixel[2]))
+            .append(", ")
+            .append(std::to_string(pixel[3]))
+            .append("]");
+        return string;
       }
 
       ImageUtilsTestSuite() {
@@ -46,17 +61,53 @@ namespace exqudens::example::test {
 
   };
 
-  TEST_F(ImageUtilsTestSuite, test1) {
-    String path = Path(RunnerConfig::getExecutableDirPath())
+  TEST_F(ImageUtilsTestSuite, testReadPng1) {
+    String path;
+    Image image;
+    int height;
+    int width;
+    int x;
+    int y;
+    String pixel;
+
+    path = Path(Config::getExecutableDirPath())
         .append("..")
         .append("resources")
         .append("png")
         .append("census-transform-1.png")
         .string();
-    std::vector<std::vector<std::array<char, 4>>> image = ImageUtils::readPng(path);
+    image = ImageUtils::readPng(path);
+    height = image.size();
 
-    std::cout << "width: " << image[0].size() << std::endl;
-    std::cout << "height: " << image.size() << std::endl;
+    ASSERT_EQ(240, height) << "height: '" << height << "'";
+
+    width = image[0].size();
+
+    ASSERT_EQ(320, width) << "width: '" << width << "'";
+
+    x = 0;
+    y = 0;
+    pixel = ImageUtilsTestSuite::toString(image[y][x]);
+
+    ASSERT_EQ("[155, 164, 125, 255]", pixel) << "x/y: '" << x << "/" << y;
+
+    x = 0;
+    y = height - 1;
+    pixel = ImageUtilsTestSuite::toString(image[y][x]);
+
+    ASSERT_EQ("[219, 223, 154, 255]", pixel) << "x/y: '" << x << "/" << y;
+
+    x = width - 1;
+    y = height - 1;
+    pixel = ImageUtilsTestSuite::toString(image[y][x]);
+
+    ASSERT_EQ("[125, 125, 75, 255]", pixel) << "x/y: '" << x << "/" << y;
+
+    x = width - 1;
+    y = 0;
+    pixel = ImageUtilsTestSuite::toString(image[y][x]);
+
+    ASSERT_EQ("[255, 255, 226, 255]", pixel) << "x/y: '" << x << "/" << y;
   }
 
 }

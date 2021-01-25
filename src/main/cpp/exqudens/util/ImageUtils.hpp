@@ -6,11 +6,20 @@
 
 namespace exqudens::util {
 
+  using Pixel  = std::array<unsigned char, 4>;
+  using Row    = std::vector<Pixel>;
+  using Image  = std::vector<Row>;
+  using String = std::string;
+
   class ImageUtils {
 
     public:
 
-      static std::vector<std::vector<std::array<char, 4>>> readPng(std::string path);
+      ImageUtils() = delete;
+
+      static Image readPng(String path);
+
+      ~ImageUtils() = delete;
 
   };
 

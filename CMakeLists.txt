@@ -299,8 +299,8 @@ target_include_directories(ExqudensExampleTest
 target_sources(ExqudensExampleTest
     PRIVATE src/test/cpp/exqudens/test/Runner.hpp
             src/test/cpp/exqudens/test/Runner.cpp
-    src/test/cpp/exqudens/test/Config.hpp
-    src/test/cpp/exqudens/test/Config.cpp
+            src/test/cpp/exqudens/test/Config.hpp
+            src/test/cpp/exqudens/test/Config.cpp
             src/test/cpp/exqudens/util/StringUtilsTestSuite.hpp
             src/test/cpp/exqudens/util/ImageUtilsTestSuite.hpp
 )

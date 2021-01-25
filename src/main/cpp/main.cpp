@@ -86,9 +86,10 @@ void readPng(String executableFilePath) {
 }
 
 int main(int argc, char** argv) {
+  String executableFilePath = String(argv[0]);
+
   if (argc > 1) {
 
-    String executableFilePath = String(argv[0]);
     String command = String(argv[1]);
 
     if ("--parent-path" == command) {
@@ -99,6 +100,10 @@ int main(int argc, char** argv) {
       readPng(executableFilePath);
     }
 
+  } else {
+    parentPath();
+    trim();
+    readPng(executableFilePath);
   }
 
   return 0;

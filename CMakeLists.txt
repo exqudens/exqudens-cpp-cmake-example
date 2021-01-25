@@ -312,18 +312,18 @@ enable_testing()
 
 # add tests
 add_test(
-    NAME StringUtilsTestSuite.test_1
+    NAME StringUtilsTestSuite.test1
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.test_1
+    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.test1
 )
-set_tests_properties(StringUtilsTestSuite.test_1 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set_tests_properties(StringUtilsTestSuite.test1 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_test(
-    NAME StringUtilsTestSuite.test_2
+    NAME StringUtilsTestSuite.all
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.test_2
+    COMMAND TestExqudensExampleCPP --gtest_filter=StringUtilsTestSuite.*
 )
-set_tests_properties(StringUtilsTestSuite.test_2 PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set_tests_properties(StringUtilsTestSuite.all PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_test(
     NAME main.parentPath

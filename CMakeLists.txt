@@ -379,3 +379,10 @@ add_test(
     COMMAND ExqudensExampleCPP --trim
 )
 set_tests_properties(main.trim PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_test(
+    NAME main.readPng
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND ExqudensExampleCPP --read-png
+)
+set_tests_properties(main.readPng PROPERTIES ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

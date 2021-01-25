@@ -1,14 +1,16 @@
-#include "exqudens/util/StringUtils.hpp"
-
 #include <string>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
+#include "exqudens/util/StringUtils.hpp"
+#include "exqudens/util/ImageUtils.hpp"
 
 using String      = std::string;
 using Path        = std::filesystem::path;
 using StringUtils = exqudens::util::StringUtils;
+using ImageUtils  = exqudens::util::ImageUtils;
+using Image       = exqudens::util::Image;
 
 void parentPath() {
   if(const char* env_p = std::getenv("PATH")) {
@@ -56,10 +58,31 @@ void trim() {
 
 void readPng(String executableFilePath) {
   std::filesystem::path filePath = std::filesystem::path(executableFilePath.c_str())
-      .append("..").append("..")
+      .append("..")
+      .append("..")
       .append("resources")
+      .append("png")
       .append("census-transform-1.png");
   std::string filePathString = filePath.string();
+
+  std::cout << "processing path: '" << filePathString << "'" << std::endl;
+
+  Image image = ImageUtils::readPng(filePathString);
+  int height = image.size();
+  int width = image[0].size();
+  String expected = "320/240";
+  String actual = std::to_string(width).append("/").append(std::to_string(height));
+
+  std::cout << "result: '" << actual << "'" << std::endl;
+
+  if (expected != actual) {
+    String message = "expected: '";
+    message += expected;
+    message += "' actual: '";
+    message += actual;
+    message += "'";
+    throw std::runtime_error(message);
+  }
 }
 
 int main(int argc, char** argv) {
